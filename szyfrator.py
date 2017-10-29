@@ -12,7 +12,18 @@ alphabet = {
               'M' : 13,'N': 14,'O'  : 15,'P' : 16,
               'Q' : 17,'R': 18,'S'  : 19,'T' : 20,
               'U' : 21,'V': 22,'W'  : 23,'X' : 24,
-              'Y' : 25,'Z': 26 
+              'Y' : 25,'Z': 26,'.'  : 27,',' : 28,
+              ' ' : 29,'1': 30,'2'  : 31,'3' : 32,
+              '4' : 34,'5': 35,'6'  : 36,'7' : 38,
+              '8' : 39,'9': 40,'0'  : 41,
+
+              'a' : 42, 'b': 43, 'c'  : 44, 'd' : 45,
+              'e' : 46, 'f': 47, 'g'  : 48, 'h' : 49,
+              'i' : 50, 'j': 51,'k'  : 52,'l' : 53,
+              'n': 55,'o'  : 56,'p' : 57,
+              'q' : 58,'r': 59,'s'  : 60,'t' : 61,
+              'u' : 62,'v': 63,'w'  : 64,'x' : 65,
+              'y' : 67,'z': 68
             }
 inv_alphabet = {v: k for k, v in alphabet.items()}
 
@@ -81,6 +92,10 @@ def buttonPress(button):
         if checkIfKeyIsValid(key) == False:
             app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
             return
+        for row in matrix:
+            if checkIfAlphabet("".join(row)) == False:
+                app.warningBox("errorKey","Błędna Macierz! Sprawdź INFO")
+                return
         cvtValues = convertStringToKeyValues(key)
         matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
         numberOfRows = len(matrix)
@@ -112,6 +127,12 @@ def buttonPress(button):
             return
         if checkIfKeyIsValid(key) == False:
             app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
+            return
+        if checkIfAlphabet(key) == False:
+            app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
+            return
+        if checkIfAlphabet(cipheredMessage) == False:
+            app.warningBox("errorKey","Błędny tekst szyfrowany! Sprawdź INFO")
             return
         cvtValues = convertStringToKeyValues(key)
 
@@ -149,6 +170,10 @@ def buttonPress(button):
         app.startSubWindow("Info", modal=True)
         app.addLabel("Info","Szyfr Przekątniowo-Kolumnowy\n\nTEKST JAWNY:\nTekst jawny jest w formie macierzy\nMacierz ta musi mieć określony stosunek rozmiarów\nWysokość macierzy musi być o 1 większa niż szerokość\n\nKLUCZ:\nDługość klucza musi być równa szerokości macierzy\nKlucz jest ciągiem znaków alfabetu(Duże litery)\nŻadna litera klucza nie może się powtórzyć\n\nTEKST SZYFROWANY:\nSą to odpowiednie przekątne oryginalnej macierzy\n\nSTOSUNEK KLUCZA DO TREŚCI SZYFROWANEJ:\nKażda litera klucza jest numerowana wg kolejności występowania w alfabecie\nTekst Szyfrowany dzielony jest na słowa o długości klucza+1\nWartość klucza jest odpowiednia dla każdego słowa\nWartość klucza jest numerem przekątnej która tworzy słowo")
         app.showSubWindow("Info")
+    if button == "Autor":
+        app.startSubWindow("Autor", modal=True)
+        app.addLabel("Autor","Kacper Olek\n126867\nWE\nInformatyka sem V\n")
+        app.showSubWindow("Autor")
 
 def convertStringToMatrix(text):
     clearText = str.split(text,"\n")
@@ -207,6 +232,11 @@ def checkIfKeyIsValid(key):
             return False
         else:
             return True
+def checkIfAlphabet(string):
+    for char in string:
+        if not(char in alphabet):
+            return False
+    return True
 app = appJar.gui("Szyfr Przekątniowo-Kolumnowy","800x500")
 
 
@@ -220,10 +250,11 @@ app.addButton("Zapisz tekst zaszyfrowany do pliku",buttonPress,2,2)
 app.addButton("Generuj klucz",buttonPress,2,1)
 app.addButton("Szyfruj",buttonPress,4,1)
 app.addButton("Odszyfruj",buttonPress,5,1)
-app.addButton("Zapisz Klucz do pliku",buttonPress,0,1)
-app.addButton("Pobierz Klucz z pliku",buttonPress,3,1)
+app.addButton("Pobierz Klucz z pliku",buttonPress,0,1)
+app.addButton("Zapisz Klucz do pliku",buttonPress,3,1)
 
 app.addButton("INFO",buttonPress,6,1)
+app.addButton("Autor",buttonPress,7,1)
 
 
 app.addTextArea("Tekst Jawny",1,0)

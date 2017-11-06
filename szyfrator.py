@@ -2,8 +2,18 @@ import appJar
 import string
 import random
 import copy
+import numpy
 
+alphabetNONUMERICAL = {
+              'A' : 1, 'B': 2, 'C'  : 3, 'D' : 4,
+              'E' : 5, 'F': 6, 'G'  : 7, 'H' : 8,
+              'I' : 9, 'J': 10,'K'  : 11,'L' : 12,
+              'M' : 13,'N': 14,'O'  : 15,'P' : 16,
+              'Q' : 17,'R': 18,'S'  : 19,'T' : 20,
+              'U' : 21,'V': 22,'W'  : 23,'X' : 24,
+              'Y' : 25,'Z': 26
 
+}
 
 alphabet = { 
               'A' : 1, 'B': 2, 'C'  : 3, 'D' : 4,
@@ -70,34 +80,69 @@ def buttonPress(button):
         stringToWrite = app.getTextArea("Tekst Szyfrowany")
         path.write(stringToWrite)
         path.close()
-    if button == "Generuj klucz":
-        matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
-        length = len(matrix) - 1
-        if checkIfMatrixIsValid(matrix) == False:
-            app.warningBox("errorMatrix","Zły tekst jawny! Sprawdź INFO")
-            return
-
-        key = generateKey(length)
-        app.clearEntry("Klucz")
-        app.setEntry("Klucz",key)
+    # if button == "Generuj klucz":
+    #     matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
+    #     length = len(matrix) - 1
+    #     if checkIfMatrixIsValid(matrix) == False:
+    #         app.warningBox("errorMatrix","Zły tekst jawny! Sprawdź INFO")
+    #         return
+    #
+    #     key = generateKey(length)
+    #     app.clearEntry("Klucz")
+    #     app.setEntry("Klucz",key)
     if button == "Szyfruj":
         key = app.getEntry("Klucz")
-        matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
-        if checkIfMatrixIsValid(matrix) == False:
-            app.warningBox("errorMatrix","Zły tekst jawny! Sprawdź INFO")
-            return
-        if checkIfKeyMatchesMatrix(key,matrix) == False:
-            app.warningBox("errorKey","Klucz nie pasuje do macierzy! Sprawdź INFO")
-            return
-        if checkIfKeyIsValid(key) == False:
-            app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
-            return
-        for row in matrix:
-            if checkIfAlphabet("".join(row)) == False:
-                app.warningBox("errorKey","Błędna Macierz! Sprawdź INFO")
-                return
+
+        # matrixFloat = numpy.zeros(shape=(len(key) + 1,len(key)))
+        matrix = numpy.chararray((len(key) +1,len(key)))
+
+       # matrix = matrixFloat.astype(int)
+
+
+        matrix[:] = 'X'
+
+        text = app.getTextArea("Tekst Jawny")
+
+        X = 0
+        Y = 0
+        currChar = 0
+        for x in range(len(text)):
+            if currChar >= (len(key) + 1) * (len(key)):
+                break
+
+
+            matrix[X][Y] = text[currChar]
+            currChar = currChar + 1
+            Y = Y+1
+
+            if Y == len(key):
+                X = X + 1
+                Y = 0
+        NewMatrix = list()
+        for x in range(len(matrix)):
+            NewMatrix.append(list(matrix[x]))
+
+        print(NewMatrix)
+       # print(matrix)
+        # matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
+        # print(matrix)
+
+
+        # if checkIfMatrixIsValid(matrix) == False:
+        #     app.warningBox("errorMatrix","Zły tekst jawny! Sprawdź INFO")
+        #     return
+        # if checkIfKeyMatchesMatrix(key,matrix) == False:
+        #     app.warningBox("errorKey","Klucz nie pasuje do macierzy! Sprawdź INFO")
+        #     return
+        if checkIfAlphabetNUMER(key) == False:
+             app.warningBox("errorKey","NIEDOZWOLONY SYMBOL! Sprawdź INFO")
+             return
+        # for row in matrix:
+        #     if checkIfAlphabet("".join(row)) == False:
+        #         app.warningBox("errorKey","Błędna Macierz! Sprawdź INFO")
+        #         return
         cvtValues = convertStringToKeyValues(key)
-        matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
+        #matrix = convertStringToMatrix(app.getTextArea("Tekst Jawny"))
         numberOfRows = len(matrix)
         numberOfColumns = numberOfRows - 1
 
@@ -114,6 +159,11 @@ def buttonPress(button):
                 else:
                     lastIndex = lastIndex + 1
                 diagonal.append(matrix[index][lastIndex + offset])
+        for i,x in enumerate(diagonal):
+            if x == '':
+                diagonal[i] = ' '
+            else:
+                diagonal[i] = x.decode('utf-8')
 
         cipheredMessage = ''.join(diagonal)
 
@@ -122,29 +172,33 @@ def buttonPress(button):
     if button == "Odszyfruj":
         key = app.getEntry("Klucz")
         cipheredMessage = app.getTextArea("Tekst Szyfrowany")
-        if(not(checkIfCipheredMessageMatchesKey(key,cipheredMessage))):
-            app.warningBox("errorCipher","Szyfrowany tekst nie pasuje do klucza! Sprawdź INFO")
-            return
-        if checkIfKeyIsValid(key) == False:
-            app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
-            return
-        if checkIfAlphabet(key) == False:
-            app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
-            return
+        # if(not(checkIfCipheredMessageMatchesKey(key,cipheredMessage))):
+        #     app.warningBox("errorCipher","Szyfrowany tekst nie pasuje do klucza! Sprawdź INFO")
+        #     return
+        # if checkIfKeyIsValid(key) == False:
+        #     app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
+        #     return
+        if checkIfAlphabetNUMER(key) == False:
+             app.warningBox("errorKey","Błędny klucz! Sprawdź INFO")
+             return
+
         if checkIfAlphabet(cipheredMessage) == False:
-            app.warningBox("errorKey","Błędny tekst szyfrowany! Sprawdź INFO")
-            return
+             app.warningBox("errorKey","Błędny tekst szyfrowany! Sprawdź INFO")
+             return
         cvtValues = convertStringToKeyValues(key)
 
         wordLength = len(key) + 1
         cipheredWords = [cipheredMessage[i:i + wordLength] for i in range(0, len(cipheredMessage), wordLength)]
-        decipheredMessage = [[0 for x in range(wordLength - 1)] for y in range(wordLength)] 
+        decipheredMessage = [['X' for x in range(wordLength - 1)] for y in range(wordLength)]
         for i,off in enumerate(cvtValues):
             currentCharacter = 0
 
             lastIndex = 0
             offset = off - 1
-            currentWord = list(cipheredWords[i])
+            try:
+                currentWord = list(cipheredWords[i])
+            except IndexError:
+                currentWord = ['X'] * wordLength
             decipheredMessage[-1][lastIndex + offset] = currentWord[currentCharacter]
 
             for index in range(wordLength - 2, -1 , -1):
@@ -156,12 +210,15 @@ def buttonPress(button):
                     lastIndex = lastIndex + 1
                     currentCharacter = currentCharacter + 1
 
-                decipheredMessage[index][lastIndex + offset] = currentWord[currentCharacter]
+                try:
+                    decipheredMessage[index][lastIndex + offset] = currentWord[currentCharacter]
+                except IndexError:
+                    break
         decipheredString = ''
         for i,row in enumerate(decipheredMessage):
             currentRowString = ''.join(row)
             if i != len(decipheredMessage) - 1:
-                currentRowString = currentRowString + "\n"
+                currentRowString = currentRowString
 
             decipheredString = decipheredString + currentRowString
         app.clearTextArea("Tekst Jawny")
@@ -182,21 +239,22 @@ def convertStringToMatrix(text):
     return clearText    
 
 def convertStringToKeyValues(key):
-	charValues = []
+    charValues = []
 
-	for character in key:
-	  charValues.append(alphabet[character])
+    for character in key:
+        charValues.append(alphabet[character])
 	  
-	smallestNumber = 0
-	convertedValues = copy.deepcopy(charValues)
-	i = 1
-	for index in range(len(charValues)):
-	  smallestNumber = min(charValues,key=int)
-	  position = charValues.index(smallestNumber)
-	  charValues[position] = 100
-	  convertedValues[position] = i
-	  i = i + 1
-	return convertedValues
+    smallestNumber = 0
+    convertedValues = copy.deepcopy(charValues)
+    i = 1
+    for index in range(len(charValues)):
+        smallestNumber = min(charValues,key=int)
+        position = charValues.index(smallestNumber)
+        charValues[position] = 100
+        convertedValues[position] = i
+        i = i + 1
+    print(convertedValues)
+    return convertedValues
 
 def generateKey(length):
     key = random.sample(range(1,26),length)
@@ -226,12 +284,14 @@ def checkIfKeyMatchesMatrix(key,matrix):
         return False
     else:
         return True
-def checkIfKeyIsValid(key):
-    for char in key:
-        if len(set([x for x in key if key.count(x) > 1])) > 0:
+
+
+def checkIfAlphabetNUMER(string):
+    for char in string:
+        if not(char in alphabetNONUMERICAL):
             return False
-        else:
-            return True
+    return True
+
 def checkIfAlphabet(string):
     for char in string:
         if not(char in alphabet):
@@ -247,7 +307,7 @@ app.addButton("Wczytaj tekst zaszyfrowany z pliku",buttonPress,0,2)
 app.addButton("Zapisz tekst jawny do pliku",buttonPress,2,0)
 app.addButton("Zapisz tekst zaszyfrowany do pliku",buttonPress,2,2)
 
-app.addButton("Generuj klucz",buttonPress,2,1)
+# app.addButton("Generuj klucz",buttonPress,2,1)
 app.addButton("Szyfruj",buttonPress,4,1)
 app.addButton("Odszyfruj",buttonPress,5,1)
 app.addButton("Pobierz Klucz z pliku",buttonPress,0,1)
